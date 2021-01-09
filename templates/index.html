@@ -3,24 +3,21 @@
 <head>
 	<meta charset="utf-8">
 	<title>Course Calender</title>	
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap" rel="stylesheet">
+	<style type="text/css">  
 
-	<link href='http://fonts.googleapis.com/css?family=Sintony:400,700' rel='stylesheet' type='text/css'>
-
-	<style type="text/css">    
   body
   {
-    background-color: rgba(214,225,231);
+    background-color: rgba(255,255,255);
   }
 
   h1
   {
     font-size:48px;
     margin-top:0;
-    font-family:Arial, sans-serif;
-    text-shadow:2px 0 15px #292929;
-    letter-spacing:4px;
+    font-family: 'Montserrat', sans-serif;
     text-decoration:none;
-    color:#DDD;
   }
 
   #logo
@@ -46,11 +43,23 @@
 </head>  
   
 <body>
-	<div id="banner">
-		<img src='../static/logo.png' alt='logo' id='logo'>
-	</div>
+	
 	<div id="content">
-		<p>Welcome! Upload a course outline to get started. </p>
-	</div>
+    <div id='header'>
+      <h1>Course Calendar</h1>
+    </div>
+    
+    <div id="banner">
+      <img src='../static/logo.png' alt='logo' id='logo'>
+    </div>
+    <p>Welcome! Upload a course outline to get started. </p>
+  </div>
+  <div class="card">
+    <h1>File Upload</h1>
+    <form method="POST" action="" enctype="multipart/form-data">
+      <p><input type="file" name="file" accept="application/pdf"></p>
+      <p><input type="submit" value="Submit"></p>
+    </form>
+  </div>
 </body>
 </html>

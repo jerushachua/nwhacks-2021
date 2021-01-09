@@ -1,5 +1,5 @@
 # app.py
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, redirect, url_for
 from flask_bootstrap import Bootstrap
 
 app = Flask(__name__) 
@@ -48,14 +48,14 @@ def post_something():
 def index():
     return render_template('index.html')
 
-
-@app.route('/example')
-def example():
-    return render_template('example.html')
+@app.route('/', methods=['POST'])
+def upload_file():
+    uploaded_file = request.files['file']
+    if uploaded_file.filename != '':
+        uploaded_file.save(uploaded_file.filename)
+    return redirect(url_for('index'))
 
 if __name__ == '__main__':
     # Threaded option to enable multiple instances for multiple user access support
     app.run(threaded=True, port=5000)
-
-
 
