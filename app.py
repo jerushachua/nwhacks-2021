@@ -1,6 +1,8 @@
 # app.py
-from flask import Flask, request, jsonify
-app = Flask(__name__)
+from flask import Flask, render_template, request, jsonify
+from flask_bootstrap import Bootstrap
+
+app = Flask(__name__) 
 
 @app.route('/getmsg/', methods=['GET'])
 def respond():
@@ -44,10 +46,16 @@ def post_something():
 # A welcome message to test our server
 @app.route('/')
 def index():
-    return "<h1>Welcome to our server !!</h1>"
+    return render_template('index.html')
+
+
+@app.route('/example')
+def example():
+    return render_template('example.html')
 
 if __name__ == '__main__':
     # Threaded option to enable multiple instances for multiple user access support
     app.run(threaded=True, port=5000)
 
-    
+
+
