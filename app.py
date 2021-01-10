@@ -78,20 +78,6 @@ def date_to_calendar(data):
         return render_template('index.html') 
     
     print(data)
-
-    service, flags = sample_tools.init(
-        argv, 'calendar', 'v3', __doc__, __file__,
-        scope='https://www.googleapis.com/auth/calendar.readonly')
-
-    page_token = None
-    while True:
-        calendar_list = service.calendarList().list(
-            pageToken=page_token).execute()
-        for calendar_list_entry in calendar_list['items']:
-            print(calendar_list_entry['summary'])
-        page_token = calendar_list.get('nextPageToken')
-        if not page_token:
-            break
     
 
 
