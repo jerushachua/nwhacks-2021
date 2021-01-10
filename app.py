@@ -99,7 +99,7 @@ def date_to_calendar(data, original_text):
                 date = datetime(year=int(year), month=int(month), day=int(day))
                 startdate = year + month + day
                 enddate = year + month + str(int(day) + 1)
-                date_url = calendar_url + "?text='Assignment due'&dates=" + startdate.strip('-') + '/' + enddate.strip('-') 
+                date_url = calendar_url + "?dates=" + startdate.strip('-') + '/' + enddate.strip('-') 
                 dates.append([date, date_url])
     
     return render_template('file_success.html', dates=dates)
