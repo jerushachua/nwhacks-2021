@@ -7,8 +7,7 @@ import base64
 import json
 import pytz
 import os
-
-from datetime import datetime
+import datetime
 
 try:
     import urlparse
@@ -83,10 +82,23 @@ def date_to_calendar(data, original_text):
     if not len(data):
         return render_template("index.html", text="We couldn't find any events in that file. Try another file?", show_upload_button=True)
     
+    dates = []
     for item in data:
-        print(item)
 
-    return render_template('file_success.html')
+        date_vals = item['normalizedDate'].split('-')
+        if len(date_vals) == 3: 
+            year, month, day = date_vals
+            isValidDate = True
+            try:
+                datetime.datetime(int(year), int(month), int(day))
+            except ValueError:
+                isValidDate = False
+            if isValidDate: 
+                date = datetime.datetime(year=int(year), month=int(month), day=int(day))
+                dates.append(date)
+    
+    print(dates)
+    return render_template('file_success.html', dates=dates)
     
 
 # Index

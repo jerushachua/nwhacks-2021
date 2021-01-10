@@ -65,6 +65,12 @@
         width: 100%;;
       }
 
+      #padding 
+      {
+        padding-top: 10px;
+        padding-bottom: 10px;
+      }
+
       
       </style>
     {%- endblock styles %}
@@ -85,7 +91,22 @@
     </div>
     <div id="upload">
       <h2>File successfully parsed! </h2>
+      {% if dates %}
       <p>The following important dates were found. Take a look and add them to your calendar. </p>
+      {% for date in dates %}
+      <button class="btn btn-default">{{ date.strftime('%d %b %Y') }} </button>
+      {% endfor %}
+      {% else %} 
+      <p>No important dates were found. Try a different file?  </p>
+      {% endif %}
+      <div id="padding">
+        <h2>Upload another file</h2>
+        <p>Upload another file</p>
+        <form method="POST" action="" enctype="multipart/form-data">
+          <p><input class="btn btn-default" id="click" type="file" name="file" accept="application/pdf"></p>
+          <p><input class="btn btn-default" type="submit" value="Submit"></p>
+        </form>
+      </div>
     </div>
 
     {%- endblock content %}
