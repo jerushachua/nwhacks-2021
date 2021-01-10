@@ -16,7 +16,7 @@ from googleapiclient import sample_tools
 # Use the client_secret.json file to identify the application requesting
 # authorization. The client ID (from that file) and access scopes are required.
 flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
-    'client_secret.json',
+    'credentials.json',
     scopes=['https://www.googleapis.com/auth/drive.metadata.readonly'])
 
 flow.redirect_uri = 'https://www.example.com/oauth2callback'
