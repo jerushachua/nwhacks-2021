@@ -59,7 +59,7 @@ def upload_file():
     if uploaded_file.filename != '':
         uploaded_file.save(uploaded_file.filename)
 
-    process_image(uploaded_file)
+    # process_image(uploaded_file)
     return redirect(url_for('index'))
 
 
