@@ -5,40 +5,58 @@ from flask_bootstrap import Bootstrap
 import requests
 import base64
 import json
+import pytz
+import os
+
+from datetime import datetime
+
+try:
+    import urlparse
+    from urllib import urlencode
+except: # For Python 3
+    import urllib.parse as urlparse
+    from urllib.parse import urlencode
 
 
 app = Flask(__name__) 
 
+Bootstrap(app)
+
+os.environ['NO_PROXY'] = '127.0.0.1'
+
+
 
 def send_pdf(filename): 
 
-  data = {} 
-  with open(filename, 'rb') as pdf: 
-      s = base64.b64encode(pdf.read())
-      data["data"] = s.decode("utf-8")
+    data = {} 
+    with open(filename, 'rb') as pdf: 
+        s = base64.b64encode(pdf.read())
+        data["data"] = s.decode("utf-8")
 
-  url = "https://pdf-to-text.p.rapidapi.com/text-extraction"
-  headers = {
-    'content-type': "application/json",
-    'x-rapidapi-key': "384dd2b48dmsh6a4567223470c4bp19ca4ejsndb0512e6a247",
-    'x-rapidapi-host': "pdf-to-text.p.rapidapi.com"
-  }
+    url = "https://pdf-to-text.p.rapidapi.com/text-extraction"
+    headers = {
+        'content-type': "application/json",
+        'x-rapidapi-key': "384dd2b48dmsh6a4567223470c4bp19ca4ejsndb0512e6a247",
+        'x-rapidapi-host': "pdf-to-text.p.rapidapi.com"
+    }
+    
+    response = requests.request("POST", url, data=json.dumps(data), headers=headers)
 
-  response = requests.request("POST", url, data=json.dumps(data), headers=headers)
-
-  text_to_date(json.loads(response.text))
+    if response.status_code == 201: 
+        return text_to_date(json.loads(response.text))
+    else:
+        return render_template("index.html", text="We couldn't parse that file. Try another file?", show_upload_button=True)
 
 
 def text_to_date(data):
     
-    if not data:
-       return render_template('index.html') 
+    if not len(data):
+       return render_template('failed_to_parse.html') 
 
     querystring = {
       'text': data["data"],
       'Content-Type': 'application/json'
     } 
-    print(querystring)
 
     url = "https://webknox-text-processing.p.rapidapi.com/text/dates"
 
@@ -49,22 +67,32 @@ def text_to_date(data):
 
     response = requests.request("GET", url, headers=headers, params=querystring)
 
-    date_to_calendar(json.loads(response.text))
-    return render_template('calendar.html')
+    if response.status_code == 200: 
+        return date_to_calendar(json.loads(response.text), data["data"])
+    if response.status_code == 414:
+        return render_template("index.html", text="That file is too large to parse properly. Try another file?", show_upload_button=True)
+    else:
+        return render_template("index.html", text="We couldn't find any events in that file. Try another file?", show_upload_button=True)
 
 
-def date_to_calendar(data):
+def date_to_calendar(data, original_text):
 
-    if not data:
-        return render_template('index.html') 
+    # https://stackoverflow.com/questions/5831877/how-do-i-create-a-link-to-add-an-entry-to-a-calendar/19867654#19867654
+    calendar_url = "https://calendar.google.com/calendar/r/eventedit"
+
+    if not len(data):
+        return render_template("index.html", text="We couldn't find any events in that file. Try another file?", show_upload_button=True)
     
-    print(data)
+    for item in data:
+        print(item)
+
+    return render_template('file_success.html')
     
 
 # Index
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template("index.html", title="Welcome!", text="Upload a course outline to get started. ", show_upload_button=True)
 
 
 @app.route('/', methods=['POST'])
@@ -73,15 +101,7 @@ def upload_file():
     uploaded_file = request.files['file']
     if uploaded_file.filename != '':
         uploaded_file.save(uploaded_file.filename)
-        send_pdf(uploaded_file.filename) 
-
-        return render_template('file_success.html')
-
-
-# Post file upload
-@app.route('/success')
-def success():
-    return render_template('file_success.html')
+        return send_pdf(uploaded_file.filename) 
 
 
 # Error handling

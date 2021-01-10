@@ -1,77 +1,107 @@
+{% block doc -%}
 <!DOCTYPE html>
-<html lang="en">
-<head>
-	<meta charset="utf-8">
-	<title>Course Calender</title>	
-  <link rel="preconnect" href="https://fonts.gstatic.com">
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap" rel="stylesheet">
-	<style type="text/css">  
+<html{% block html_attribs %}{% endblock html_attribs %}>
+{%- block html %}
+  <head>
+    {%- block head %}
+    <title>Course Calender</title>
 
-  body
-  {
-    background-color: rgba(255,255,255);
-  }
-  
-  .content
-  {
-    background-color:rgba(214,225,231);
-    border-radius:3px;
-    box-shadow:rgba(0,0,0,0.2) 0 1px 3px;
-  }
+    {%- block metas %}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+    {%- endblock metas %}
 
-  h1, h2, h3, h4, h5, p
-  {
-    font-family: 'Montserrat', sans-serif;
-    text-decoration:none;
-  }
+    {%- block styles %}
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap" rel="stylesheet">
+    <link href="{{bootstrap_find_resource('css/bootstrap.css', cdn='bootstrap')}}" rel="stylesheet">
+    <style type="text/css">  
 
-  #header 
-  {
-    text-align:center;
-    padding: 10px;
-  }
-
-  #logo
-  {
-    width:300px;
-    text-align:center;
-    background-repeat:no-repeat;
-    border-radius:5px;
-    margin:0px auto auto;
-    padding:10px 0;
-    display: block;
-  }
-
-  #upload 
-  { 
-    margin: auto;
-    width: 50%;
-    padding: 10px;
-    text-align:center;
-  }
-  
-	</style>
-
-</head>  
-  
-<body>
-	
-	<div id="content">
-    <div id='header'>
-      <h1>Course Calendar</h1>
-    </div>
+      body
+      {
+        background-color: rgba(255,255,255);
+      }
+      
+      .content
+      {
+        background-color:rgba(214,225,231);
+        border-radius:3px;
+        box-shadow:rgba(0,0,0,0.2) 0 1px 3px;
+      }
     
-    <div id="banner">
-      <img src='../static/logo.png' alt='logo' id='logo'>
+      h1, h2, h3, h4, h5, p
+      {
+        font-family: 'Montserrat', sans-serif;
+        text-decoration:none;
+      }
+    
+      #header 
+      {
+        text-align:center;
+        padding: 10px;
+      }
+    
+      #logo
+      {
+        width:300px;
+        text-align:center;
+        background-repeat:no-repeat;
+        border-radius:5px;
+        margin:0px auto auto;
+        padding:10px 0;
+        display: block;
+      }
+    
+      #upload 
+      { 
+        margin: auto;
+        width: 50%;
+        padding: 10px;
+        text-align:center;
+      }
+
+      #click 
+      {
+        width: 100%;;
+      }
+
+      
+      </style>
+    {%- endblock styles %}
+    {%- endblock head %}
+  </head>
+  <body{% block body_attribs %}{% endblock body_attribs %}>
+    {% block body -%}
+    {% block content -%}
+
+    <div id="content">
+      <div id='header'>
+        <h1>Course Calendar</h1>
+      </div>
+      
+      <div id="banner">
+        <img src='../static/logo.png' alt='logo' id='logo'>
+      </div>
     </div>
-  </div>
-  <div id="upload">
-    <h2>File Upload</h2>
-    <p>Welcome! Upload a course outline to get started. </p>
-    <form method="POST" action="" enctype="multipart/form-data">
-      <p><input type="file" name="file" accept="application/pdf"></p>
-      <p><input type="submit" value="Submit"></p>
-    </form>
-  </div>
-</body>
+    <div id="upload">
+      <h2>{{ title }}</h2>
+      <p>{{ text }} </p>
+      {% if show_upload_button %}
+      <form method="POST" action="" enctype="multipart/form-data">
+        <p><input class="btn btn-default" id="click" type="file" name="file" accept="application/pdf"></p>
+        <p><input class="btn btn-default" type="submit" value="Submit"></p>
+      </form>
+      {% endif %}
+    </div>
+
+    {%- endblock content %}
+
+    {% block scripts %}
+    <script src="{{bootstrap_find_resource('jquery.js', cdn='jquery')}}"></script>
+    <script src="{{bootstrap_find_resource('js/bootstrap.js', cdn='bootstrap')}}"></script>
+    {%- endblock scripts %}
+    {%- endblock body %}
+  </body>
+{%- endblock html %}
 </html>
+{% endblock doc -%}
