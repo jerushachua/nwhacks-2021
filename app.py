@@ -7,6 +7,25 @@ import base64
 import json
 
 
+import google.oauth2.credentials
+import google_auth_oauthlib.flow
+from oauth2client import client
+from googleapiclient import sample_tools
+
+
+# Use the client_secret.json file to identify the application requesting
+# authorization. The client ID (from that file) and access scopes are required.
+flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
+    'client_secret.json',
+    scopes=['https://www.googleapis.com/auth/drive.metadata.readonly'])
+
+flow.redirect_uri = 'https://www.example.com/oauth2callback'
+
+authorization_url, state = flow.authorization_url(
+    access_type='offline',
+    include_granted_scopes='true')
+
+
 app = Flask(__name__) 
 
 
@@ -59,6 +78,21 @@ def date_to_calendar(data):
         return render_template('index.html') 
     
     print(data)
+
+    service, flags = sample_tools.init(
+        argv, 'calendar', 'v3', __doc__, __file__,
+        scope='https://www.googleapis.com/auth/calendar.readonly')
+
+    page_token = None
+    while True:
+        calendar_list = service.calendarList().list(
+            pageToken=page_token).execute()
+        for calendar_list_entry in calendar_list['items']:
+            print(calendar_list_entry['summary'])
+        page_token = calendar_list.get('nextPageToken')
+        if not page_token:
+            break
+    
 
 
 # Index
