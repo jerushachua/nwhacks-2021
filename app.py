@@ -2,62 +2,78 @@
 from flask import Flask, render_template, request, jsonify, redirect, url_for
 from flask_bootstrap import Bootstrap
 
+import requests
+import base64
+import json
+
+
 app = Flask(__name__) 
 
 
-@app.route('/getmsg/', methods=['GET'])
-def respond():
-    # Retrieve the name from url parameter
-    name = request.args.get("name", None)
+def send_pdf(filename): 
 
-    # For debugging
-    print(f"got name {name}")
+  data = {} 
+  with open(filename, 'rb') as pdf: 
+      s = base64.b64encode(pdf.read())
+      data["data"] = s.decode("utf-8")
 
-    response = {}
+  url = "https://pdf-to-text.p.rapidapi.com/text-extraction"
+  headers = {
+    'content-type': "application/json",
+    'x-rapidapi-key': "384dd2b48dmsh6a4567223470c4bp19ca4ejsndb0512e6a247",
+    'x-rapidapi-host': "pdf-to-text.p.rapidapi.com"
+  }
 
-    # Check if user sent a name at all
-    if not name:
-        response["ERROR"] = "no name found, please send a name."
-    # Check if the user entered a number not a name
-    elif str(name).isdigit():
-        response["ERROR"] = "name can't be numeric."
-    # Now the user entered a valid name
-    else:
-        response["MESSAGE"] = f"Welcome {name} to our awesome platform!!"
+  response = requests.request("POST", url, data=json.dumps(data), headers=headers)
 
-    # Return the response in json format
-    return jsonify(response)
+  text_to_date(response.text)
+  return render_template('loading.html')
 
-@app.route('/post/', methods=['POST'])
-def post_something():
-    param = request.form.get('name')
-    print(param)
-    # You can add the test cases you made in the previous function, but in our case here you are just testing the POST functionality
-    if param:
-        return jsonify({
-            "Message": f"Welcome {name} to our awesome platform!!",
-            # Add this option to distinct the POST request
-            "METHOD" : "POST"
-        })
-    else:
-        return jsonify({
-            "ERROR": "no name found, please send a name."
-        })
+def text_to_date(data):
+    
+    if not data:
+       return render_template('index.html') 
+
+    print(data)
+
+    url = "https://webknox-text-processing.p.rapidapi.com/text/dates"
+    querystring = {"text":"Jerusha Chua\ "}
+
+    headers = {
+    'x-rapidapi-key': "384dd2b48dmsh6a4567223470c4bp19ca4ejsndb0512e6a247",
+    'x-rapidapi-host': "webknox-text-processing.p.rapidapi.com"
+    }
+
+    response = requests.request("GET", url, headers=headers, params=querystring)
+
+    print(response.text)
+
 
 # A welcome message to test our server
 @app.route('/')
 def index():
     return render_template('index.html')
 
+
+@app.route('/success')
+def success():
+    return render_template('success.html')
+
+
 @app.route('/', methods=['POST'])
 def upload_file():
+
     uploaded_file = request.files['file']
     if uploaded_file.filename != '':
         uploaded_file.save(uploaded_file.filename)
+        send_pdf(uploaded_file.filename) 
 
-    # process_image(uploaded_file)
-    return redirect(url_for('index'))
+        return redirect(url_for('success'))
 
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
 
 if __name__ == '__main__':
     # Threaded option to enable multiple instances for multiple user access support
