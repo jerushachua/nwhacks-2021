@@ -2,10 +2,6 @@
 from flask import Flask, render_template, request, jsonify, redirect, url_for
 from flask_bootstrap import Bootstrap
 
-from gcloud import storage
-from oauth2client.service_account import ServiceAccountCredentials
-import os
-
 app = Flask(__name__) 
 
 
