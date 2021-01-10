@@ -3,6 +3,5 @@
 /tutorial-env
 
 *.pdf
-.env
 credentials.json
 
