@@ -2,7 +2,12 @@
 from flask import Flask, render_template, request, jsonify, redirect, url_for
 from flask_bootstrap import Bootstrap
 
+from gcloud import storage
+from oauth2client.service_account import ServiceAccountCredentials
+import os
+
 app = Flask(__name__) 
+
 
 @app.route('/getmsg/', methods=['GET'])
 def respond():
@@ -53,7 +58,10 @@ def upload_file():
     uploaded_file = request.files['file']
     if uploaded_file.filename != '':
         uploaded_file.save(uploaded_file.filename)
+
+    process_image(uploaded_file)
     return redirect(url_for('index'))
+
 
 if __name__ == '__main__':
     # Threaded option to enable multiple instances for multiple user access support
