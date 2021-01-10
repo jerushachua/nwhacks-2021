@@ -1,13 +1,14 @@
 # app.py
 from flask import Flask, render_template, request, jsonify, redirect, url_for
 from flask_bootstrap import Bootstrap
+from datetime import datetime
 
 import requests
 import base64
 import json
 import pytz
 import os
-import datetime
+# import datetime
 
 try:
     import urlparse
@@ -90,14 +91,17 @@ def date_to_calendar(data, original_text):
             year, month, day = date_vals
             isValidDate = True
             try:
-                datetime.datetime(int(year), int(month), int(day))
+                datetime(int(year), int(month), int(day))
             except ValueError:
                 isValidDate = False
             if isValidDate: 
-                date = datetime.datetime(year=int(year), month=int(month), day=int(day))
-                dates.append(date)
+                
+                date = datetime(year=int(year), month=int(month), day=int(day))
+                startdate = year + month + day
+                enddate = year + month + str(int(day) + 1)
+                date_url = calendar_url + "?text='Assignment due'&dates=" + startdate.strip('-') + '/' + enddate.strip('-') 
+                dates.append([date, date_url])
     
-    print(dates)
     return render_template('file_success.html', dates=dates)
     
 

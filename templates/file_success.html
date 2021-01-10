@@ -93,8 +93,8 @@
       <h2>File successfully parsed! </h2>
       {% if dates %}
       <p>The following important dates were found. Take a look and add them to your calendar. </p>
-      {% for date in dates %}
-      <button class="btn btn-default">{{ date.strftime('%d %b %Y') }} </button>
+      {% for item in dates %}
+      <a class="btn btn-default" href="{{ item[1] }}">{{ item[0].strftime('%b %d %Y') }}</a>
       {% endfor %}
       {% else %} 
       <p>No important dates were found. Try a different file?  </p>
