@@ -26,18 +26,21 @@ def send_pdf(filename):
 
   response = requests.request("POST", url, data=json.dumps(data), headers=headers)
 
-  text_to_date(response.text)
-  return render_template('loading.html')
+  text_to_date(json.loads(response.text))
+
 
 def text_to_date(data):
     
     if not data:
        return render_template('index.html') 
 
-    print(data)
+    querystring = {
+      'text': data["data"],
+      'Content-Type': 'application/json'
+    } 
+    print(querystring)
 
     url = "https://webknox-text-processing.p.rapidapi.com/text/dates"
-    querystring = {"text":"Jerusha Chua\ "}
 
     headers = {
     'x-rapidapi-key': "384dd2b48dmsh6a4567223470c4bp19ca4ejsndb0512e6a247",
@@ -46,18 +49,22 @@ def text_to_date(data):
 
     response = requests.request("GET", url, headers=headers, params=querystring)
 
-    print(response.text)
+    date_to_calendar(json.loads(response.text))
+    return render_template('calendar.html')
 
 
-# A welcome message to test our server
+def date_to_calendar(data):
+
+    if not data:
+        return render_template('index.html') 
+    
+    print(data)
+
+
+# Index
 @app.route('/')
 def index():
     return render_template('index.html')
-
-
-@app.route('/success')
-def success():
-    return render_template('success.html')
 
 
 @app.route('/', methods=['POST'])
@@ -68,9 +75,16 @@ def upload_file():
         uploaded_file.save(uploaded_file.filename)
         send_pdf(uploaded_file.filename) 
 
-        return redirect(url_for('success'))
+        return render_template('file_success.html')
 
 
+# Post file upload
+@app.route('/success')
+def success():
+    return render_template('file_success.html')
+
+
+# Error handling
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html'), 404
