@@ -7,10 +7,10 @@ Create a python virtual environment
 `python3 -m venv`
 
 Start the environment
-`source tutorial-env/bin/activate`
+`source venv/bin/activate`
 
 Install dependencies
-`pip install -r requirements.txt` 
+`pip3 install -r requirements.txt` 
 
 Run the app
 `python app.py`

@@ -1,6 +1,5 @@
-/activate
+/secrets
 /tutorial-env
 
 *.pdf
 credentials.json
-
