@@ -26,7 +26,6 @@ app = Flask(__name__)
 Bootstrap(app)
 
 os.environ['NO_PROXY'] = '127.0.0.1'
-os.environ['GOOGLE_APPLICATION_CREDENTIALS']='secrets/nwhacks-2021-a6f652bb1912.json'
 
 GCLOUD_PDF_BUCKET_NAME = 'course-outlines-nwhacks'
 GCLOUD_TEXT_BUCKET_NAME = 'course-texts-nwhacks'
@@ -42,7 +41,7 @@ def send_pdf_gcloud(filename):
     # storage_client = storage.Client.from_service_account_json('secrets/nwhacks-2021-a6f652bb1912.json')
 
     # testing 
-    storage_client = storage.Client.from_service_account_json(json.loads(ENV['GOOGLE_CLIENT_SECRETS']))
+    storage_client = storage.Client.from_service_account_json(json.loads(os.environ['GOOGLE_CLIENT_SECRETS']))
 
     # upload pdf to bucket
     bucket = storage_client.get_bucket(GCLOUD_PDF_BUCKET_NAME)
