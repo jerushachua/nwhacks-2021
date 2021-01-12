@@ -31,30 +31,11 @@ os.environ['GOOGLE_APPLICATION_CREDENTIALS']='secrets/nwhacks-2021-a6f652bb1912.
 GCLOUD_PDF_BUCKET_NAME = 'course-outlines-nwhacks'
 GCLOUD_TEXT_BUCKET_NAME = 'course-texts-nwhacks'
 
+# prod
+# BASE_URL = 'www.coursecalendar.online'
+BASE_URL = 'http://localhost:5000/'
 
-def send_pdf(filename): 
-
-    data = {} 
-    with open(filename, 'rb') as pdf: 
-        s = base64.b64encode(pdf.read())
-        data["data"] = s.decode("utf-8")
-
-    url = "https://pdf-to-text.p.rapidapi.com/text-extraction"
-    headers = {
-        'content-type': "application/json",
-        'x-rapidapi-key': "384dd2b48dmsh6a4567223470c4bp19ca4ejsndb0512e6a247",
-        'x-rapidapi-host': "pdf-to-text.p.rapidapi.com"
-    }
-    
-    response = requests.request("POST", url, data=json.dumps(data), headers=headers)
-
-    if response.status_code == 201: 
-        return text_to_date(json.loads(response.text))
-    else:
-        return render_template("index.html", text="We couldn't parse that file. Try another file?", show_upload_button=True)
-
-
-async def send_pdf_gcloud(file):
+def send_pdf_gcloud(filename):
 
     # use service account credentials by specifying the private key
     storage_client = storage.Client.from_service_account_json(
@@ -62,11 +43,11 @@ async def send_pdf_gcloud(file):
 
     # upload pdf to bucket
     bucket = storage_client.get_bucket(GCLOUD_PDF_BUCKET_NAME)
-    object_name_in_gcs_bucket = bucket.blob(file.filename)
-    object_name_in_gcs_bucket.upload_from_filename(file.filename)
+    object_name_in_gcs_bucket = bucket.blob(filename)
+    object_name_in_gcs_bucket.upload_from_filename(filename)
 
-    gcs_source_uri = 'gs://' + GCLOUD_PDF_BUCKET_NAME + '/' + file.filename
-    gcs_destination_uri = 'gs://' + GCLOUD_TEXT_BUCKET_NAME + '/' + file.filename
+    gcs_source_uri = 'gs://' + GCLOUD_PDF_BUCKET_NAME + '/' + filename
+    gcs_destination_uri = 'gs://' + GCLOUD_TEXT_BUCKET_NAME + '/' + filename
     return detect_text_from_pdf(gcs_source_uri, gcs_destination_uri)
 
 
@@ -96,7 +77,7 @@ def detect_text_from_pdf(gcs_source_uri, gcs_destination_uri):
         requests=[async_request])
 
     print('Waiting for the operation to finish.')
-    operation.result(timeout=420)
+    operation.result(timeout=10000)
 
     # Once the request has completed and the output has been
     # written to GCS, we can list all the output files.
@@ -177,9 +158,7 @@ def date_to_calendar(data, original_text):
                 enddate = year + month + str(int(day) + 1)
                 date_url = calendar_url + "?dates=" + startdate.strip('-') + '/' + enddate.strip('-') 
                 dates.append([date, date_url])
-    
-    print(dates)
-    
+        
     return render_template('file_success.html', dates=dates)
     
 
@@ -191,13 +170,21 @@ def index():
 
 @app.route('/', methods=['POST'])
 def upload_file():
-
     uploaded_file = request.files['file']
     if uploaded_file.filename != '':
         uploaded_file.save(uploaded_file.filename)
-        await send_pdf_gcloud(uploaded_file)
-        return render_template("index.html", title="Welcome!", text="Parsing file ... ", show_upload_button=False, loading=True)
+        params = { 'filename': uploaded_file.filename }
+        # requests.get(BASE_URL + '/upload', params=params)
+        # return render_template("index.html", title="Got your file!", text="Parsing file ... ", show_upload_button=False, loading=True)
+        return send_pdf_gcloud(uploaded_file.filename)
+    else:
+        return render_template("index.html", title="Welcome!", text="Upload a course outline to get started. ", show_upload_button=True)
 
+
+@app.route('/upload', methods=['GET'])
+def parse_file():
+    uploaded_file = request.args['filename']
+    return send_pdf_gcloud(uploaded_file)
 
 # Error handling
 @app.errorhandler(404)
