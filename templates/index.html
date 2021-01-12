@@ -80,7 +80,12 @@
       </div>
       
       <div id="banner">
+        {% if loading %}
+        <img src='../static/loading.gif' alt='logo' id='logo'>
+        {% else %} 
         <img src='../static/logo.png' alt='logo' id='logo'>
+        {% endif %}
+        
       </div>
     </div>
     <div id="upload">
