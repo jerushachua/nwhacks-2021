@@ -41,11 +41,11 @@ def send_pdf_gcloud(filename):
     # storage_client = storage.Client.from_service_account_json('secrets/nwhacks-2021-a6f652bb1912.json')
 
     # prod 
-    data = json.loads(os.environ['GOOGLE_APPLICATION_CREDENTIALS'])
+    data = json.loads(os.environ['GOOGLE_CREDENTIALS'])
     print(credentials)
     print(os.listdir('/'))
 
-    with open(GOOGLE_CREDENTIALS, 'w', encoding='utf-8') as f:
+    with open(GOOGLE_APPLICATION_CREDENTIALS, 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
 
     storage_client = storage.Client.from_service_account_json(GOOGLE_CREDENTIALS)
