@@ -129,6 +129,7 @@ def text_to_date(data):
     }
 
     response = requests.request("GET", url, headers=headers, params=querystring)
+    res = json.loads(response.text)
 
     if not len(res):
         return render_template("index.html", text="We couldn't find any events in that file. Try another file?", show_upload_button=True)
