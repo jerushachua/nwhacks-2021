@@ -129,14 +129,13 @@ def text_to_date(data):
     }
 
     response = requests.request("GET", url, headers=headers, params=querystring)
-    res = json.loads(response.text)
 
-    if response.status_code == 200: 
-        return date_to_calendar(json.loads(response.text), data["data"])
-    if response.status_code in [414, 500] :
-        return render_template("index.html", text="That file is too large to parse properly. Try another file?", show_upload_button=True)
-    elif not len(res):
+    if not len(res):
         return render_template("index.html", text="We couldn't find any events in that file. Try another file?", show_upload_button=True)
+    elif response.status_code in [414, 500] :
+        return render_template("index.html", text="That file is too large to parse properly. Try another file?", show_upload_button=True)
+    elif response.status_code == 200: 
+        return date_to_calendar(json.loads(response.text), data["data"])
 
 
 def date_to_calendar(data, original_text):
