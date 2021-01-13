@@ -42,7 +42,7 @@ def send_pdf_gcloud(filename):
 
     # prod 
     data = json.loads(os.environ['GOOGLE_CREDENTIALS'])
-    print(credentials)
+    print(data)
     print(os.listdir('/'))
 
     with open(GOOGLE_APPLICATION_CREDENTIALS, 'w', encoding='utf-8') as f:
