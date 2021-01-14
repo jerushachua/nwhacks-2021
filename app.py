@@ -4,7 +4,6 @@ from flask_bootstrap import Bootstrap
 from datetime import datetime
 from google.cloud import storage
 from google.cloud import vision
-from google.cloud import language_v1
 
 import requests
 import base64
@@ -33,6 +32,7 @@ GCLOUD_TEXT_BUCKET_NAME = 'course-texts-nwhacks'
 # prod
 # BASE_URL = 'www.coursecalendar.online'
 BASE_URL = 'http://localhost:5000/'
+
 
 def send_pdf_gcloud(filename):
 
@@ -129,12 +129,13 @@ def text_to_date(data):
     }
 
     response = requests.request("GET", url, headers=headers, params=querystring)
-    res = json.loads(response.text)
+    if response.status_code in [414, 500] :
+        print(response)
+        return render_template("index.html", text="That file is too large to parse properly. Try another file?", show_upload_button=True)
 
+    res = json.loads(response.text)
     if not len(res):
         return render_template("index.html", text="We couldn't find any events in that file. Try another file?", show_upload_button=True)
-    elif response.status_code in [414, 500] :
-        return render_template("index.html", text="That file is too large to parse properly. Try another file?", show_upload_button=True)
     elif response.status_code == 200: 
         return date_to_calendar(json.loads(response.text), data["data"])
 
@@ -180,17 +181,10 @@ def upload_file():
     if uploaded_file.filename != '':
         uploaded_file.save(uploaded_file.filename)
         params = { 'filename': uploaded_file.filename }
-        # requests.get(BASE_URL + '/upload', params=params)
-        # return render_template("index.html", title="Got your file!", text="Parsing file ... ", show_upload_button=False, loading=True)
         return send_pdf_gcloud(uploaded_file.filename)
     else:
         return render_template("index.html", title="Welcome!", text="Upload a course outline to get started. ", show_upload_button=True)
 
-
-@app.route('/upload', methods=['GET'])
-def parse_file():
-    uploaded_file = request.args['filename']
-    return send_pdf_gcloud(uploaded_file)
 
 # Error handling
 @app.errorhandler(404)

@@ -2,4 +2,5 @@
 /tutorial-env
 
 *.pdf
-credentials.json
+.env
+google-credentials.json
