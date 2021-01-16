@@ -1,6 +1,7 @@
 # app.py
 from flask import Flask, render_template, request, jsonify, redirect, url_for
 from flask_bootstrap import Bootstrap
+from dotenv import load_dotenv
 from datetime import datetime
 from google.cloud import storage
 from google.cloud import vision
@@ -21,8 +22,8 @@ except: # For Python 3
 
 
 app = Flask(__name__) 
-
 Bootstrap(app)
+load_dotenv()
 
 os.environ['NO_PROXY'] = '127.0.0.1'
 
@@ -108,16 +109,28 @@ def detect_text_from_pdf(gcs_source_uri, gcs_destination_uri):
     for res in response['responses']:
         full_text = full_text + res['fullTextAnnotation']['text']
 
-    return text_to_date({ 'data': full_text })
+    return parse_text(full_text)
 
 
-def text_to_date(data):
-    
-    if not len(data):
+# parse text for sentences that may contain a date by checking if it contains a digit
+def parse_text(full_text):
+
+    if not len(full_text):
        return render_template('failed_to_parse.html') 
 
+    parsed_text = ''
+    find_digits = re.compile('\d')
+    for sentence in full_text.split('.'):
+        if find_digits.search(sentence):
+            parsed_text = parsed_text + sentence
+
+    return text_to_date(parsed_text)
+
+
+def text_to_date(full_text):
+    
     querystring = {
-      'text': data["data"],
+      'text': full_text,
       'Content-Type': 'application/json'
     } 
 
@@ -129,15 +142,14 @@ def text_to_date(data):
     }
 
     response = requests.request("GET", url, headers=headers, params=querystring)
-    if response.status_code in [414, 500] :
-        print(response)
+    if response.status_code != 200:
         return render_template("index.html", text="That file is too large to parse properly. Try another file?", show_upload_button=True)
 
     res = json.loads(response.text)
     if not len(res):
         return render_template("index.html", text="We couldn't find any events in that file. Try another file?", show_upload_button=True)
-    elif response.status_code == 200: 
-        return date_to_calendar(json.loads(response.text), data["data"])
+    else: 
+        return date_to_calendar(json.loads(response.text), full_text)
 
 
 def date_to_calendar(data, original_text):
